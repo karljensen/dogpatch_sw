@@ -419,8 +419,8 @@ void Dogpatch::set_leg_enable(uint8_t leg, bool enable) {
 
 void Dogpatch::print_pkt_filter() {
     for(int i = 0; i < 32; i++) {
-        printf("Filter[%d]: Enabled %i, IP Src: 0x%x, IP Dst: 0x%x, Src Port: %d, Dst Port: %d, Protocol: %d, Reserved: %0x\n",i,pkt_filter[i].enable,
-            pkt_filter[i].ip_src,pkt_filter[i].ip_dst,pkt_filter[i].port_src,pkt_filter[i].port_dst,pkt_filter[i].protocol,pkt_filter[i].reserved);
+        printf("Filter[%d]: Enabled %i, IP Src: 0x%x, IP Dst: 0x%x, Src Port: %d, Dst Port: %d, Protocol: %d, Buffer: %0d\n",i,pkt_filter[i].enable,
+            pkt_filter[i].ip_src,pkt_filter[i].ip_dst,pkt_filter[i].port_src,pkt_filter[i].port_dst,pkt_filter[i].protocol,pkt_filter[i].chn);
     }
 }
 
