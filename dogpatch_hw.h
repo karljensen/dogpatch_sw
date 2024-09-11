@@ -267,20 +267,18 @@ typedef enum {NASDAQ, CBOE, NYSE} exc_t;
 
 class Dogpatch
 {
-private:
+public:
     /* data */
     exanic_t * exanic;
+    dogpatch_image_info_t * reg;
+    volatile dogpatch_pkt_filter_t * pkt_filter;
+    volatile dogpatch_pillar_sess_t * pillar_sess;
     dogpatch_toe_t * ext_reg;
     char * mon_hdr;
     uint32_t toe_ack[DOGPATCH_FPGA_MAX_SESSIONS];
-public:
     dogpatch_mem_t * mem;
     dogpatch_stats_t * stats;
-    volatile dogpatch_pkt_filter_t * pkt_filter;
-    volatile dogpatch_pillar_sess_t * pillar_sess;
-    dogpatch_image_info_t * reg;
 
-public:
     Dogpatch(const char * device);
     ~Dogpatch();
     void print_reg();
