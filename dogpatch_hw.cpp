@@ -521,6 +521,7 @@ void Dogpatch::bootstrap(int exchange) {
     global_listen_char[2] = 0x19;
     global_listen_char[3] = 0x1a;
     global_listen_char[4] = 0x1b;
+    global_listen_char[5] = 0x1d;
     reg->global_listen[0] = *(uint32_t *)&global_listen_char[0];
     reg->global_listen[1] = *(uint32_t *)&global_listen_char[4];
     reg->global_listen[2] = *(uint32_t *)&global_listen_char[8];
