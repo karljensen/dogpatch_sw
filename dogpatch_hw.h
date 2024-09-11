@@ -240,7 +240,7 @@ typedef struct __attribute__((__packed__)) dogpatch_pkt_filter_t {
     volatile uint32_t protocol: 8 = 0;
     volatile uint32_t enable: 1 = 0;
     volatile uint32_t reserved : 7 = 0;
-    volatile uint32_t chn: 6 = 0;
+    volatile uint32_t chn: 6 = 6;
     volatile uint32_t reserved1 : 10 = 0;
 } dogpatch_pkt_filter_t;
 
