@@ -208,7 +208,7 @@ enum class dogpatch_mon_pkt_risk_flags {
   RISK_CONSUMED = 12, // risk token has already been consumed
   SIZE_ZERO = 13, // size was set to zero, i.e. not intended to fire
   LISTEN_TYPE = 14, // trigger listen type filter
-  RESERVED = 15, // reserved for future use set to 0
+  CROSSED_MARKET = 15, // Market is crossed or locked
 };
 
 typedef struct __attribute__((__packed__)) dogpatch_leg_param_t {
