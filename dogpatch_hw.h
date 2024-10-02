@@ -32,7 +32,11 @@ struct Exablaze {
     char *extended_mem;
 };
 
-typedef struct __attribute__((__packed__)) mon_hdr_t
+// tell compiler to not align because of long problems
+#pragma pack(push)
+#pragma pack(1)
+
+typedef struct mon_hdr_t
 {
     char dst_mac[6];
     char src_mac[6];
@@ -53,7 +57,7 @@ typedef struct __attribute__((__packed__)) mon_hdr_t
     uint16_t udp_cksm; //40
 } mon_hdr_t;
 
-typedef struct __attribute__((__packed__)) tcp_hdr_t
+typedef struct tcp_hdr_t
 {
     char dst_mac[6];
     char src_mac[6];
@@ -77,14 +81,14 @@ typedef struct __attribute__((__packed__)) tcp_hdr_t
     uint16_t tcp_urg;
 } tcp_hdr_t;
 
-typedef struct __attribute__((__packed__)) dogpatch_toe_t {
+typedef struct dogpatch_toe_t {
     volatile uint32_t tcp_hdr[DOGPATCH_FPGA_MAX_SESSIONS][16];
     volatile uint32_t cksm[DOGPATCH_FPGA_MAX_SESSIONS];
     volatile uint32_t seqno[DOGPATCH_FPGA_MAX_SESSIONS];
     volatile uint32_t ack[DOGPATCH_FPGA_MAX_SESSIONS];
 } dogpatch_toe_t;
 
-typedef struct __attribute__((__packed__)) dogpatch_radio_stats_t {
+typedef struct dogpatch_radio_stats_t {
     volatile uint32_t ether;
     volatile uint32_t crc;
     volatile uint32_t len_long;
@@ -92,7 +96,7 @@ typedef struct __attribute__((__packed__)) dogpatch_radio_stats_t {
     volatile uint32_t good;
 } dogpatch_radio_stats_t;
 
-typedef struct __attribute__((__packed__)) dogpatch_stats_t {
+typedef struct dogpatch_stats_t {
     volatile uint32_t max_pps_flag;
     volatile uint32_t order_tx;
     volatile uint32_t mon_buf_ovfl;
@@ -109,7 +113,7 @@ typedef struct __attribute__((__packed__)) dogpatch_stats_t {
     dogpatch_radio_stats_t radio[6];
 } dogpatch_stats_t;
 
-typedef struct __attribute__((__packed__)) sources_t {
+typedef struct sources_t {
     // Changed from char[12] to uint32_t[3] to allow x86 write of 4 byte wide words
     // volatile char listen[12];
     // volatile char action[12];
@@ -117,7 +121,7 @@ typedef struct __attribute__((__packed__)) sources_t {
     volatile uint32_t action[3];
 } sources_t;
 
-typedef struct __attribute__((__packed__)) dogpatch_image_info_t {
+typedef struct dogpatch_image_info_t {
    volatile char magic_id[4];
    volatile uint32_t build_number;
    volatile uint32_t git_hash;
@@ -156,7 +160,7 @@ typedef struct __attribute__((__packed__)) dogpatch_image_info_t {
    volatile uint32_t toe_send_payload[32];
 } dogpatch_image_info_t;
 
-typedef struct __attribute__((__packed__)) dogpatch_mon_pkt_t {
+typedef struct dogpatch_mon_pkt_t {
    uint16_t Padding;
    uint8_t leg_delta;
    uint32_t leg_risk_time;
@@ -190,6 +194,49 @@ typedef struct __attribute__((__packed__)) dogpatch_mon_pkt_t {
    uint8_t sess_id;
 } dogpatch_mon_pkt_t ;
 
+typedef struct dogpatch_leg_param_t {
+    uint16_t size_ask = 0;
+    uint16_t size_bid = 0;
+    uint32_t risk_token_sell = 0;
+    uint32_t risk_token_buy = 0;
+    uint32_t last_coi = 0;
+    uint32_t filt_spread = 0;
+    uint8_t  filt_shares : 3 = 0;
+    uint8_t  filt_age: 5 = 0;
+    uint32_t risk_price_sell = 0;
+    uint32_t risk_price_buy = 0;
+    uint8_t  delta : 7 = 0; // NOTE delta 0-127 with 64 equals delta of 1
+    uint8_t  slot_en: 1 = 0;
+    uint16_t reserved = 0;
+} dogpatch_leg_param_t;
+
+typedef struct dogpatch_mem_t {
+    char symbol[DOGPATCH_FPGA_MAX_SYMBOLS][8];
+    dogpatch_leg_param_t leg_param [DOGPATCH_FPGA_MAX_LEGS][DOGPATCH_FPGA_MAX_SYMBOLS];
+} dogpatch_mem_t;
+
+typedef struct dogpatch_pkt_filter_t {
+    volatile uint32_t ip_src = 0;
+    volatile uint32_t ip_dst = 0;
+    volatile uint32_t port_src : 16 = 0;
+    volatile uint32_t port_dst : 16 = 0;
+    volatile uint32_t protocol: 8 = 0;
+    volatile uint32_t enable: 1 = 0;
+    volatile uint32_t reserved : 7 = 0;
+    volatile uint32_t chn: 6 = 6;
+    volatile uint32_t reserved1 : 10 = 0;
+} dogpatch_pkt_filter_t;
+
+typedef struct dogpatch_pillar_sess_t {
+    volatile uint32_t session_id;
+    volatile uint32_t stream_id;
+    //volatile uint64_t seqno;
+    volatile uint32_t seqno_msb;
+    volatile uint32_t seqno_lsb;
+} dogpatch_pillar_sess_t;
+
+#pragma pack(pop)
+
 // Flag names and meaning for risk_flags field in dogpatch_mon_pkt_t
 // Only using the first 14 bits, last 2 unused for now left with 0 value
 enum class dogpatch_mon_pkt_risk_flags {
@@ -210,47 +257,6 @@ enum class dogpatch_mon_pkt_risk_flags {
   LISTEN_TYPE = 14, // trigger listen type filter
   CROSSED_MARKET = 15, // Market is crossed or locked
 };
-
-typedef struct __attribute__((__packed__)) dogpatch_leg_param_t {
-    uint16_t size_ask = 0;
-    uint16_t size_bid = 0;
-    uint32_t risk_token_sell = 0;
-    uint32_t risk_token_buy = 0;
-    uint32_t last_coi = 0;
-    uint32_t filt_spread = 0;
-    uint8_t  filt_shares : 3 = 0;
-    uint8_t  filt_age: 5 = 0;
-    uint32_t risk_price_sell = 0;
-    uint32_t risk_price_buy = 0;
-    uint8_t  delta : 7 = 0; // NOTE delta 0-127 with 64 equals delta of 1
-    uint8_t  slot_en: 1 = 0;
-    uint16_t reserved = 0;
-} dogpatch_leg_param_t;
-
-typedef struct __attribute__((__packed__)) dogpatch_mem_t {
-    char symbol[DOGPATCH_FPGA_MAX_SYMBOLS][8];
-    dogpatch_leg_param_t leg_param [DOGPATCH_FPGA_MAX_LEGS][DOGPATCH_FPGA_MAX_SYMBOLS];
-} dogpatch_mem_t;
-
-typedef struct __attribute__((__packed__)) dogpatch_pkt_filter_t {
-    volatile uint32_t ip_src = 0;
-    volatile uint32_t ip_dst = 0;
-    volatile uint32_t port_src : 16 = 0;
-    volatile uint32_t port_dst : 16 = 0;
-    volatile uint32_t protocol: 8 = 0;
-    volatile uint32_t enable: 1 = 0;
-    volatile uint32_t reserved : 7 = 0;
-    volatile uint32_t chn: 6 = 6;
-    volatile uint32_t reserved1 : 10 = 0;
-} dogpatch_pkt_filter_t;
-
-typedef struct __attribute__((__packed__)) dogpatch_pillar_sess_t {
-    volatile uint32_t session_id;
-    volatile uint32_t stream_id;
-    //volatile uint64_t seqno;
-    volatile uint32_t seqno_msb;
-    volatile uint32_t seqno_lsb;
-} dogpatch_pillar_sess_t;
 
 static void dump_buf(char *buf, ssize_t len) {
     int i;
