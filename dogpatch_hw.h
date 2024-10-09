@@ -24,7 +24,6 @@ struct Exablaze {
     uint64_t read64(uint64_t byte_addr);
     void write64(uint64_t byte_addr, uint64_t hwval);
     void write_mem(uint32_t addr, char * value, size_t size);
-    const char *DEVICE_NAME = "exanic0";
     exanic_t *device_handle;
     volatile uint32_t *regs;
     volatile uint32_t *ext_regs;

@@ -50,6 +50,10 @@ extern "C" {
 }
 
 Exablaze::Exablaze(){
+    const char* DEVICE_NAME = getenv("CUR_EXANIC");
+    if (DEVICE_NAME == NULL) {
+        DEVICE_NAME = "exanic0";
+    }
     device_handle = exanic_acquire_handle(DEVICE_NAME);
     if (device_handle == NULL){
         fprintf(stderr, "ERROR %s: exanic_acquire_handle - msg: %s\n", DEVICE_NAME, exanic_get_last_error());
