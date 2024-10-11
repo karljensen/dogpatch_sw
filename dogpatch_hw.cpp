@@ -204,7 +204,7 @@ uint16_t tcp_pl_cksm(const char * msg, size_t len) {
 Dogpatch::Dogpatch(const char * device) {
     if ((exanic = exanic_acquire_handle(device)) == NULL) {
         char err_str[256];
-        sprintf(err_str,"Bad exanice device name: %s",device);
+        sprintf(err_str,"Bad exanic device name: %s",device);
         throw std::invalid_argument(err_str);
     }
 
