@@ -520,12 +520,12 @@ void Dogpatch::bootstrap(int exchange) {
     // Add type 0x19 to global listen buffer
     char global_listen_char[12];
     bzero(global_listen_char, sizeof(global_listen_char));
-    global_listen_char[0] = 0x17;
-    global_listen_char[1] = 0x18;
-    global_listen_char[2] = 0x19;
-    global_listen_char[3] = 0x1a;
-    global_listen_char[4] = 0x1b;
-    global_listen_char[5] = 0x1d;
+    global_listen_char[0] = 0x17; // 23 SIGNAL_ARCA_V3
+    global_listen_char[1] = 0x18; // 24 SIGNAL_NYSE_V3
+    global_listen_char[2] = 0x19; // 25 SIGNAL_NASDAQ_V3
+    global_listen_char[3] = 0x1a; // 26 SIGNAL_BZX_V3
+    global_listen_char[4] = 0x1b; // 27 SIGNAL_EDGX_V3
+    global_listen_char[5] = 0x1d; // 29 SIGNAL_PHOENIX_V3
     reg->global_listen[0] = *(uint32_t *)&global_listen_char[0];
     reg->global_listen[1] = *(uint32_t *)&global_listen_char[4];
     reg->global_listen[2] = *(uint32_t *)&global_listen_char[8];
