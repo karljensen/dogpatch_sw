@@ -253,7 +253,7 @@ void Dogpatch::print_reg() {
     for(int j = 0; j < DOGPATCH_FPGA_MAX_LEGS; j++) {
         printf("  Leg %d - ",j);
         // TODO Unwind like bytes
-        for(int i =0; i < DOGPATCH_FPGA_MAX_SOURCE_TABLES; i++ ) {
+        for(int i =0; i < 3; i++ ) {
             printf("%u, ",reg->source_types[j].listen[i]);
         }
         printf("\n");
@@ -262,7 +262,7 @@ void Dogpatch::print_reg() {
     for(int j = 0; j < DOGPATCH_FPGA_MAX_LEGS; j++) {
         printf("  Leg %d - ",j);
         // TODO Unwind like bytes
-        for(int i =0; i < DOGPATCH_FPGA_MAX_SOURCE_TABLES; i++ ) {
+        for(int i =0; i < 3; i++ ) {
             printf("%u, ",reg->source_types[j].action[i]);
         }
         printf("\n");
@@ -493,7 +493,7 @@ void Dogpatch::bootstrap(int exchange) {
     reg->ctrl = 0;
     for(int leg = 0; leg < DOGPATCH_FPGA_MAX_LEGS; leg++) {
       uint32_t tmpZero = 0;
-      for(int i = 0; i < DOGPATCH_FPGA_MAX_SOURCE_TABLES; i++ ){
+      for(int i = 0; i < 3; i++ ){
         reg->source_types[leg].listen[i] = tmpZero;
         reg->source_types[leg].action[i] = tmpZero;
         set_leg_enable(leg,false);
