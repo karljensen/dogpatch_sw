@@ -244,12 +244,17 @@ void Dogpatch::print_reg() {
     printf("TCP Sessions: %08x\n",reg->tcp_conn_en);
     printf("COI Starting Point: %d\n",reg->coi_init_value);
     printf("COI Increment: 0x%x\n",reg->coi_ctrl);
+    printf("Global Listen Types: \n");
+    for(int i =0; i < 3; i++ ) {
+        printf("%x, ",reg->global_listen[i]);
+    }
+    printf("\n");
     printf("Listen Types:\n");
     for(int j = 0; j < DOGPATCH_FPGA_MAX_LEGS; j++) {
         printf("  Leg %d - ",j);
         // TODO Unwind like bytes
         for(int i =0; i < 3; i++ ) {
-            printf("%u, ",reg->source_types[0].listen[i]);
+            printf("%u, ",reg->source_types[j].listen[i]);
         }
         printf("\n");
     }
@@ -258,7 +263,7 @@ void Dogpatch::print_reg() {
         printf("  Leg %d - ",j);
         // TODO Unwind like bytes
         for(int i =0; i < 3; i++ ) {
-            printf("%u, ",reg->source_types[0].action[i]);
+            printf("%u, ",reg->source_types[j].action[i]);
         }
         printf("\n");
     }
