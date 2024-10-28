@@ -117,8 +117,8 @@ typedef struct sources_t {
     // Changed from char[12] to uint32_t[3] to allow x86 write of 4 byte wide words
     // volatile char listen[12];
     // volatile char action[12];
-    volatile uint32_t listen[3];
-    volatile uint32_t action[3];
+    volatile uint32_t listen[4];
+    volatile uint32_t action[4];
 } sources_t;
 
 typedef struct dogpatch_image_info_t {
@@ -153,7 +153,7 @@ typedef struct dogpatch_image_info_t {
    volatile uint32_t reserved2[2];
    volatile uint32_t order_template[DOGPATCH_FPGA_MAX_LEGS][32];
    volatile uint32_t global_listen[3]; // 12 char
-   sources_t source_types[DOGPATCH_FPGA_MAX_SOURCE_TABLES];
+   sources_t source_types[DOGPATCH_FPGA_MAX_LEGS];
    volatile uint32_t reserved3[107];
    volatile uint32_t toe_send_pl_meta;
    volatile uint32_t toe_send_flg;
@@ -304,8 +304,8 @@ public:
     void send_blob(char * msg, size_t len, uint8_t session, bool pillar = false);
     void setCacheExpiry(int milliseconds);
     void setMaxOrdersPerSec(uint32_t orders);
-    void setListenType(uint8_t leg, char types[12]);
-    void setActionType(uint8_t leg, char types[12]);
+    void setListenType(uint8_t leg, char types[16]);
+    void setActionType(uint8_t leg, char types[16]);
     void set_coi_enum(const char *coi_enum, int startingVal = 0);
     void clr_pps_flag();
     void set_leg_enable(uint8_t leg, bool enable);

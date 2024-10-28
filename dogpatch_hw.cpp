@@ -253,7 +253,7 @@ void Dogpatch::print_reg() {
     for(int j = 0; j < DOGPATCH_FPGA_MAX_LEGS; j++) {
         printf("  Leg %d - ",j);
         // TODO Unwind like bytes
-        for(int i =0; i < 3; i++ ) {
+        for(int i =0; i < DOGPATCH_FPGA_MAX_SOURCE_TABLES; i++ ) {
             printf("%u, ",reg->source_types[j].listen[i]);
         }
         printf("\n");
@@ -262,7 +262,7 @@ void Dogpatch::print_reg() {
     for(int j = 0; j < DOGPATCH_FPGA_MAX_LEGS; j++) {
         printf("  Leg %d - ",j);
         // TODO Unwind like bytes
-        for(int i =0; i < 3; i++ ) {
+        for(int i =0; i < DOGPATCH_FPGA_MAX_SOURCE_TABLES; i++ ) {
             printf("%u, ",reg->source_types[j].action[i]);
         }
         printf("\n");
@@ -458,34 +458,40 @@ void Dogpatch::setMaxOrdersPerSec(uint32_t orders) {
   reg->max_order_per_sec = orders;
 }
 
-void Dogpatch::setListenType(uint8_t leg, char types[12]) {
+void Dogpatch::setListenType(uint8_t leg, char types[16]) {
   // Original type for listen/action filter was char[12] but the dma writes in 4 byre words
   // which caused neighboring bytes to zero out if we tried write single byte
   // Changed to uint32_t[3] to write them word by word instead
   uint32_t types1 = *(uint32_t *)&types[0];
   uint32_t types2 = *(uint32_t *)&types[4];
   uint32_t types3 = *(uint32_t *)&types[8];
+  uint32_t types4 = *(uint32_t *)&types[12];
   types1 = bswap_32(types1);
   types2 = bswap_32(types2);
   types3 = bswap_32(types3);
+  types4 = bswap_32(types4);
   reg->source_types[leg].listen[0] = types1;
   reg->source_types[leg].listen[1] = types2;
   reg->source_types[leg].listen[2] = types3;
+  reg->source_types[leg].listen[3] = types4;
 }
 
-void Dogpatch::setActionType(uint8_t leg, char types[12]) {
+void Dogpatch::setActionType(uint8_t leg, char types[16]) {
   // Original type for listen/action filter was char[12] but the dma writes in 4 byre words
   // which caused neighboring bytes to zero out if we tried write single byte
   // Changed to uint32_t[3] to write them word by word instead
   uint32_t types1 = *(uint32_t *)&types[0];
   uint32_t types2 = *(uint32_t *)&types[4];
   uint32_t types3 = *(uint32_t *)&types[8];
+  uint32_t types4 = *(uint32_t *)&types[12];
   types1 = bswap_32(types1);
   types2 = bswap_32(types2);
   types3 = bswap_32(types3);
+  types4 = bswap_32(types4);
   reg->source_types[leg].action[0] = types1;
   reg->source_types[leg].action[1] = types2;
   reg->source_types[leg].action[2] = types3;
+  reg->source_types[leg].action[3] = types4;
 }
 
 void Dogpatch::bootstrap(int exchange) {
@@ -493,7 +499,7 @@ void Dogpatch::bootstrap(int exchange) {
     reg->ctrl = 0;
     for(int leg = 0; leg < DOGPATCH_FPGA_MAX_LEGS; leg++) {
       uint32_t tmpZero = 0;
-      for(int i = 0; i < 3; i++ ){
+      for(int i = 0; i < DOGPATCH_FPGA_MAX_SOURCE_TABLES; i++ ){
         reg->source_types[leg].listen[i] = tmpZero;
         reg->source_types[leg].action[i] = tmpZero;
         set_leg_enable(leg,false);
