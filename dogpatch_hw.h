@@ -208,7 +208,8 @@ typedef struct dogpatch_leg_param_t {
     uint8_t  delta : 7 = 0; // NOTE delta 0-127 with 64 equals delta of 1
     uint8_t  slot_en: 1 = 0;
     uint8_t  source_table: 2 = 0;
-    uint8_t reserved = 0;
+    uint8_t  reserved1: 6 = 0;
+    uint8_t reserved2 = 0;
 } dogpatch_leg_param_t;
 
 typedef struct dogpatch_mem_t {
