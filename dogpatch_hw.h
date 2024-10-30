@@ -11,7 +11,7 @@
 #include "brokerNode.h" // for brokerNode::nasdaq, etc.
 
 #define DOGPATCH_FPGA_MAX_SYMBOLS 8192
-#define DOGPATCH_FPGA_MAX_SOURCE_TABLES 4
+#define DOGPATCH_FPGA_MAX_SOURCE_TABLES 8
 #define DOGPATCH_FPGA_MAX_LEGS 3
 #define DOGPATCH_FPGA_MAX_SESSIONS 32
 
@@ -154,7 +154,7 @@ typedef struct dogpatch_image_info_t {
    volatile uint32_t order_template[DOGPATCH_FPGA_MAX_LEGS][32];
    volatile uint32_t global_listen[3]; // 12 char
    sources_t source_types[DOGPATCH_FPGA_MAX_SOURCE_TABLES];
-   volatile uint32_t reserved3[107];
+   volatile uint32_t reserved3[77];
    volatile uint32_t toe_send_pl_meta;
    volatile uint32_t toe_send_flg;
    volatile uint32_t toe_send_payload[32];
