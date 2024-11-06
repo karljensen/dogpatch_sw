@@ -222,7 +222,7 @@ Dogpatch::Dogpatch(const char * device) {
         throw std::runtime_error("Unable to get exanic registers");
     }
 
-    stats = (dogpatch_stats_t *) (exanic_get_devkit_registers(exanic) + 999);
+    stats = (dogpatch_stats_t *) (exanic_get_devkit_registers(exanic) + 998);
     pkt_filter = (dogpatch_pkt_filter_t *) (exanic_get_devkit_registers(exanic) + 300);
     pillar_sess = (dogpatch_pillar_sess_t *) (exanic_get_devkit_registers(exanic) + 512);
 }
@@ -368,6 +368,7 @@ void Dogpatch::print_tcp(int session){
 void Dogpatch::print_stats(){
     printf("Stats\n");
     printf("  Orders Sent: %d\n",stats->order_tx);
+    printf("  TCP Close: %d\n",stats->tcp_close);
     printf("  Packets Per Second Flag: %d\n",stats->max_pps_flag);
     printf("  Monitor Pkts: %d\n",stats->mon_tx);
     printf("  Monitor drops: %d\n",stats->mon_buf_ovfl);
@@ -517,6 +518,8 @@ void Dogpatch::bootstrap(int exchange) {
     }
     reg->ctrl |= 0x0400; // Reset Client Order ID Cache
     reg->ctrl |= 0x0200; // Reset Radio Seno Arb
+    reg->ctrl |= 0x3800; // Reset price cache
+    reg->ctrl &= ~0x3800; // Clear cache reset
     reg->ctrl &= ~0x0400; // Clear reset flags
     reg->ctrl &= ~0x0200; // Clear reset flags
     // Configure

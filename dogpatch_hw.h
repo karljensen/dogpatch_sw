@@ -97,6 +97,7 @@ typedef struct dogpatch_radio_stats_t {
 } dogpatch_radio_stats_t;
 
 typedef struct dogpatch_stats_t {
+    volatile uint32_t tcp_close;
     volatile uint32_t max_pps_flag;
     volatile uint32_t order_tx;
     volatile uint32_t mon_buf_ovfl;
