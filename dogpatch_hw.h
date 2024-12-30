@@ -145,8 +145,9 @@ typedef struct dogpatch_image_info_t {
    volatile uint32_t coi_string_init_value[4];
    volatile uint32_t coi_ctrl;
    volatile uint32_t oti_xcvr_ctrl;
-   volatile uint32_t reserved4[5];
+   volatile uint32_t reserved4[4];
 
+   volatile uint32_t order_per_sec_window; // counts in ms
    volatile uint32_t max_order_per_sec;
    volatile uint32_t max_notional_msb;
    volatile uint32_t max_notional_lsb;

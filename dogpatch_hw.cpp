@@ -504,6 +504,7 @@ void Dogpatch::bootstrap(int exchange) {
 
     // Configure
     reg->prefilter_ethtype = 0;
+    reg->order_per_sec_window = 0;
     reg->max_order_per_sec = 0;
     reg->max_notional_msb = 0; // In centicents
     reg->max_notional_lsb = 0; // In centicents
@@ -539,6 +540,7 @@ void Dogpatch::bootstrap(int exchange) {
     reg->global_listen[2] = *(uint32_t *)&global_listen_char[8];
     reg->prefilter_ethtype = 0x02712e;
     //reg->radio_version = 0x02;
+    reg->order_per_sec_window = 1000;
     reg->max_order_per_sec = 10000;
     reg->max_pps = 100000;     // Maximum number of TCP packets per second: 100k
     reg->cache_expiry_ms = 99; // Set Cache Expiry to 99ms
