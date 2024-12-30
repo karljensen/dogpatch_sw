@@ -224,7 +224,7 @@ Dogpatch::Dogpatch(const char * device) {
 
     stats = (dogpatch_stats_t *) (exanic_get_devkit_registers(exanic) + 998);
     pkt_filter = (dogpatch_pkt_filter_t *) (exanic_get_devkit_registers(exanic) + 300);
-    pillar_sess = (dogpatch_pillar_sess_t *) (exanic_get_devkit_registers(exanic) + 512);
+    pillar_sess = (dogpatch_pillar_sess_t *) ((uint32_t *) ext_reg + 1024);
 }
 
 Dogpatch::~Dogpatch() {
