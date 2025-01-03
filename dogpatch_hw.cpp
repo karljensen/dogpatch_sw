@@ -121,7 +121,7 @@ void Exablaze::write_mem(uint32_t addr, char * value, size_t size) {
     write64(0,0);   // Write to flush the pcie buffer
 }
 
-const char* RISK_CODES[15] = { "TOKEN_AGE", "OPS", "ACTION_TYPE", "SHARE_QTY", "CACHE", "NOTIONAL", "AGE", "PRICE", "SPREAD", "CACHE_BETTER", "CACHE_EXPIRED", "CACHE_SIDE_INVERSION", "RISK_CONSUMED", "SIZE_ZERO", "LISTEN_TYPE"};
+const char* RISK_CODES[16] = { "TOKEN_AGE", "OPS", "ACTION_TYPE", "SHARE_QTY", "CACHE", "NOTIONAL", "AGE", "PRICE", "SPREAD", "CACHE_BETTER", "CACHE_EXPIRED", "CACHE_SIDE_INVERSION", "RISK_CONSUMED", "SIZE_ZERO", "LISTEN_TYPE", "CROSSED_MARKET"};
 
 void print_mon( dogpatch_mon_pkt_t * pkt){
     if(pkt->risk_pass) {

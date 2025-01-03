@@ -243,7 +243,6 @@ typedef struct dogpatch_pillar_sess_t {
 #pragma pack(pop)
 
 // Flag names and meaning for risk_flags field in dogpatch_mon_pkt_t
-// Only using the first 14 bits, last 2 unused for now left with 0 value
 enum class dogpatch_mon_pkt_risk_flags {
   TOKEN_AGE = 0, // risk token is expired
   OPS = 1, // risk limit orders per second
@@ -322,7 +321,7 @@ private:
     void set_tcp_cksm(uint8_t session);
 };
 
-extern const char* RISK_CODES[15];
+extern const char* RISK_CODES[16];
 
 void print_mon( dogpatch_mon_pkt_t * pkt);
 ssize_t kexanic_receive_frame(exanic_rx_t *rx, char *rx_buf, size_t rx_buf_size,
