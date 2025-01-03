@@ -544,6 +544,7 @@ void Dogpatch::bootstrap(int exchange) {
     reg->max_order_per_sec = 10000;
     reg->max_pps = 100000;     // Maximum number of TCP packets per second: 100k
     reg->cache_expiry_ms = 99; // Set Cache Expiry to 99ms
+    reg->risk_expiry_ms = 3000; // Set risk token expiry timer to 3 seconds
     uint64_t max_notional = 10000000000; // $1M in centicents
     reg->max_notional_msb = (max_notional >> 32); // In centicents
     reg->max_notional_lsb = (max_notional & 0x0FFFFFFFF); // In centicents

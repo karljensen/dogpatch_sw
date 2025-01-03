@@ -152,7 +152,8 @@ typedef struct dogpatch_image_info_t {
    volatile uint32_t max_notional_msb;
    volatile uint32_t max_notional_lsb;
    volatile uint32_t cache_expiry_ms;
-   volatile uint32_t reserved2[2];
+   volatile uint32_t risk_expiry_ms; // max 16 bits
+   volatile uint32_t reserved2;
    volatile uint32_t order_template[DOGPATCH_FPGA_MAX_LEGS][32];
    volatile uint32_t global_listen[3]; // 12 char
    sources_t source_types[DOGPATCH_FPGA_MAX_SOURCE_TABLES];
