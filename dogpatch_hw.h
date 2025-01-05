@@ -259,6 +259,7 @@ enum class dogpatch_mon_pkt_risk_flags {
   SIZE_ZERO = 13, // size was set to zero, i.e. not intended to fire
   LISTEN_TYPE = 14, // trigger listen type filter
   CROSSED_MARKET = 15, // Market is crossed or locked
+  VALID_SESSION = 16, // Valid TOE session to send on
 };
 
 static void dump_buf(char *buf, ssize_t len) {
