@@ -164,21 +164,20 @@ typedef struct dogpatch_image_info_t {
 } dogpatch_image_info_t;
 
 typedef struct dogpatch_mon_pkt_t {
-   uint16_t Padding;
-   uint8_t leg_delta;
-   uint32_t leg_risk_time;
-   uint32_t leg_risk_price_buy;
-   uint32_t leg_risk_price_sell;
-   uint8_t leg_filt_shares : 3;
+   uint8_t leg_delta; // 0
+   uint32_t leg_risk_time; //1
+   uint32_t leg_risk_price_buy; //5
+   uint32_t leg_risk_price_sell; // 9   
+   uint8_t leg_filt_shares : 3; // 13
    uint8_t leg_filt_age : 5;
-   uint32_t leg_filt_spread;
-   uint32_t leg_last_coi;
-   uint32_t leg_risk_token_buy;
-   uint32_t leg_risk_token_sell;
-   uint16_t leg_size_bid;
-   uint16_t leg_size_ask;
-   char com_param_symbol[8];
-   uint32_t com_param_seqno;
+   uint32_t leg_filt_spread; // 14
+   uint32_t leg_last_coi; // 18
+   uint32_t leg_risk_token_buy; // 22
+   uint32_t leg_risk_token_sell; // 26
+   uint16_t leg_size_bid; // 30
+   uint16_t leg_size_ask; // 32
+   char com_param_symbol[8]; // 34
+   uint32_t com_param_seqno; // 42
    uint8_t pkt_itype;
    uint8_t pkt_ipath;
    uint32_t pkt_isym;
@@ -191,7 +190,7 @@ typedef struct dogpatch_mon_pkt_t {
    uint32_t price;
    uint32_t spread;
    uint8_t risk_pass;
-   uint16_t risk_flags;
+   uint32_t risk_flags;
    uint8_t leg;
    uint32_t coi;
    uint8_t sess_id;

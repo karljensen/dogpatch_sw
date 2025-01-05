@@ -410,7 +410,7 @@ void Dogpatch::set_mon_hdr(char * hdr, ssize_t len){
     memcpy(mon_hdr,hdr,len);
     flush_mem();
     reg->ctrl &= ~0x000000FF;
-    reg->ctrl |= (len & 0x0FF) + (4 - len%4)*(len%4!=0);
+    reg->ctrl |= (len & 0x0FF);
 }
 
 void Dogpatch::set_leg_tmpl(uint8_t leg, uint8_t * tmpl, ssize_t len){
