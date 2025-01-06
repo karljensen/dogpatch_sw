@@ -14,6 +14,8 @@
 #define DOGPATCH_FPGA_MAX_SOURCE_TABLES 8
 #define DOGPATCH_FPGA_MAX_LEGS 3
 #define DOGPATCH_FPGA_MAX_SESSIONS 32
+// NOTE Do not change this without careful review and in compliance with risk controls
+#define DOGPATCH_FPGA_TOKEN_TIMEOUT_MS 5000
 
 struct Exablaze {
     Exablaze();
@@ -242,6 +244,7 @@ typedef struct dogpatch_pillar_sess_t {
 #pragma pack(pop)
 
 // Flag names and meaning for risk_flags field in dogpatch_mon_pkt_t
+// Carried in uint16_t so currently one unused set as 0 (no pass)
 enum class dogpatch_mon_pkt_risk_flags {
   TOKEN_AGE = 0, // risk token is expired
   OPS = 1, // risk limit orders per second
