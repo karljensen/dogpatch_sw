@@ -324,7 +324,7 @@ private:
     void set_tcp_cksm(uint8_t session);
 };
 
-extern const char* RISK_CODES[16];
+extern const char* RISK_CODES[17];
 
 void print_mon( dogpatch_mon_pkt_t * pkt);
 ssize_t kexanic_receive_frame(exanic_rx_t *rx, char *rx_buf, size_t rx_buf_size,
