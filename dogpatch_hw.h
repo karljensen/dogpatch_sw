@@ -244,7 +244,7 @@ typedef struct dogpatch_pillar_sess_t {
 #pragma pack(pop)
 
 // Flag names and meaning for risk_flags field in dogpatch_mon_pkt_t
-// Carried in uint16_t so currently one unused set as 0 (no pass)
+// Carried in uint32_t so currently many unused set as 0 (no pass)
 enum class dogpatch_mon_pkt_risk_flags {
   TOKEN_AGE = 0, // risk token is expired
   OPS = 1, // risk limit orders per second
