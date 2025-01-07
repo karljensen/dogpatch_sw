@@ -419,6 +419,16 @@ void Dogpatch::set_leg_tmpl(uint8_t leg, uint8_t * tmpl, ssize_t len){
     }
 }
 
+void Dogpatch::set_v9p_10g(bool enable) {
+    if(enable){
+        printf("Enabling V9P 10G\n");
+        reg->ctrl |= 0x00400000;
+    } else {
+        printf("Disabling V9P 10G\n");
+        reg->ctrl &= ~0x00400000;
+    }
+}
+
 void Dogpatch::set_leg_enable(uint8_t leg, bool enable) {
     if(enable){
         reg->ctrl |= (0x40000 << leg);

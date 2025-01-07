@@ -306,6 +306,7 @@ public:
     void tcp_set_ack(uint8_t session, uint32_t ack);
     void set_mon_hdr(char *hdr, ssize_t len);
     void set_leg_tmpl(uint8_t leg, uint8_t *tmpl, ssize_t len);
+    void set_v9p_10g(bool enable);
     void bootstrap(int exchange = brokerNode::nasdaq); // default to nasdaq
     void send_blob(char * msg, size_t len, uint8_t session, bool pillar = false);
     void setCacheExpiry(int milliseconds);
