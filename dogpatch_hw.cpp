@@ -378,8 +378,7 @@ void Dogpatch::print_stats(){
     printf("  %15s: %5d %5d %5d\n","Leg",0,1,2);
     printf("  %15s: %5d %5d %5d\n","Buf Ovfl",stats->leg_buf_ovfl[0],stats->leg_buf_ovfl[1],stats->leg_buf_ovfl[2]);
     printf("  %15s: %5d %5d %5d\n","Param Reject",stats->leg_param_reject[0],stats->leg_param_reject[1],stats->leg_param_reject[2]);
-
-    for(int i = 0; i < 6; i++ ){
+    for(int i = 0; i < reg->num_radio; i++ ){
         printf("  Radio %d - rx: %6d, crc: %3d, ether: %3d, short: %3d, long: %d\n",i,stats->radio[i].good,stats->radio[i].crc,stats->radio[i].ether,stats->radio[i].len_short,stats->radio[i].len_long);
     }
 }

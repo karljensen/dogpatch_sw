@@ -113,7 +113,7 @@ typedef struct dogpatch_stats_t {
     volatile uint32_t exchange_pass_cnt; // TODO: Add to print stats
     volatile uint32_t pillar_blob_buf_ovfl; // TODO: Add to print stats
     volatile uint32_t reserved[9];
-    dogpatch_radio_stats_t radio[6];
+    dogpatch_radio_stats_t radio[16];
 } dogpatch_stats_t;
 
 typedef struct sources_t {
