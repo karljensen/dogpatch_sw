@@ -519,7 +519,7 @@ void Dogpatch::bootstrap(int exchange) {
     reg->ctrl &= ~CTRL_EXC_MASK; // Clear the Exchange
     if ((exchange == brokerNode::bzx) || (exchange == brokerNode::edgx) || (exchange == brokerNode::edga) || (exchange == brokerNode::byx)) {
       reg->ctrl |= CTRL_EXC_CBOE;
-    } else if ((exchange == brokerNode::nyse) || (exchange == brokerNode::arca)) {
+    } else if ((exchange == brokerNode::nyse) || (exchange == brokerNode::arca) || (exchange == brokerNode::natl) || (exchange == brokerNode::amer) || (exchange == brokerNode::chx)) {
       reg->ctrl |= CTRL_EXC_NYSE;
     } else {
       reg->ctrl |= CTRL_EXC_OUCH;  // Sets exchange to default: OUCH5
