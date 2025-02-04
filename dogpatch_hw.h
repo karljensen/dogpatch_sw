@@ -131,9 +131,7 @@ typedef struct dogpatch_image_info_t {
    volatile uint32_t build_timestamp;
    volatile uint32_t ctrl;
    volatile uint32_t prefilter_ethtype;
-   volatile uint8_t  num_leg;
-   volatile uint8_t  num_radio;
-   volatile uint16_t reserved0;
+   volatile uint32_t info;
    volatile uint32_t max_pps;
    volatile uint32_t tcp_conn_en;
 
@@ -316,6 +314,8 @@ public:
     void set_coi_enum(const char *coi_enum, int startingVal = 0);
     void clr_pps_flag();
     void set_leg_enable(uint8_t leg, bool enable);
+    int get_num_leg();
+    int get_num_radio();
     void print_pkt_filter();
     void pillar_set_sess(uint8_t session, uint32_t session_id, uint32_t stream_id, uint64_t seqno);
     int set_pkt_filter(uint8_t idx, dogpatch_pkt_filter_t *filter);

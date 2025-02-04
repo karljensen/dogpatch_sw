@@ -237,8 +237,8 @@ void Dogpatch::print_reg() {
     printf("Build Hash: %8x\n",reg->git_hash);
     time_t raw_time = reg->build_timestamp;
     printf("Build Timestamp: %s",asctime(gmtime(&raw_time)));
-    printf("Num MD IF: %d\n",reg->num_radio);
-    printf("Num Leg: %d\n",reg->num_leg);
+    printf("Num MD IF: %d\n",get_num_radio());
+    printf("Num Leg: %d\n",get_num_leg());
     printf("Prefilter Ethertype: 0x%04x\n",reg->prefilter_ethtype);
     printf("Ctrl Reg: 0x%04x\n",reg->ctrl);
     printf("TCP Sessions: %08x\n",reg->tcp_conn_en);
@@ -378,7 +378,7 @@ void Dogpatch::print_stats(){
     printf("  %15s: %5d %5d %5d\n","Leg",0,1,2);
     printf("  %15s: %5d %5d %5d\n","Buf Ovfl",stats->leg_buf_ovfl[0],stats->leg_buf_ovfl[1],stats->leg_buf_ovfl[2]);
     printf("  %15s: %5d %5d %5d\n","Param Reject",stats->leg_param_reject[0],stats->leg_param_reject[1],stats->leg_param_reject[2]);
-    for(int i = 0; i < reg->num_radio; i++ ){
+    for(int i = 0; i < get_num_radio(); i++ ){
         printf("  Radio %d - rx: %6d, crc: %3d, ether: %3d, short: %3d, long: %d\n",i,stats->radio[i].good,stats->radio[i].crc,stats->radio[i].ether,stats->radio[i].len_short,stats->radio[i].len_long);
     }
 }
@@ -432,6 +432,14 @@ void Dogpatch::set_leg_enable(uint8_t leg, bool enable) {
     } else {
         reg->ctrl &= ~(0x40000 << leg);
     }
+}
+
+int Dogpatch::get_num_leg() {
+    return (int) (reg->info & 0x0FF);
+}
+
+int Dogpatch::get_num_radio() {
+    return (int) ((reg->info >> 8) & 0x0FF);
 }
 
 void Dogpatch::print_pkt_filter() {
