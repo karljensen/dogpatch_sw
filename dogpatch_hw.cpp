@@ -443,14 +443,14 @@ int Dogpatch::get_num_radio() {
 }
 
 void Dogpatch::print_pkt_filter() {
-    for(int i = 0; i < 32; i++) {
+    for(int i = 0; i < DOGPATCH_NUM_FLOW_STEER_REG; i++) {
         printf("Filter[%d]: Enabled %i, IP Src: 0x%x, IP Dst: 0x%x, Src Port: %d, Dst Port: %d, Protocol: %d, Buffer: %0d\n",i,pkt_filter[i].enable,
             pkt_filter[i].ip_src,pkt_filter[i].ip_dst,pkt_filter[i].port_src,pkt_filter[i].port_dst,pkt_filter[i].protocol,pkt_filter[i].chn);
     }
 }
 
 int Dogpatch::set_pkt_filter(uint8_t idx, dogpatch_pkt_filter_t * filter) {
-    if(idx > 31) {
+    if(idx > DOGPATCH_NUM_FLOW_STEER_REG ) {
         return -1;
     }
 

@@ -16,6 +16,7 @@
 #define DOGPATCH_FPGA_MAX_SESSIONS 32
 // NOTE Do not change this without careful review and in compliance with risk controls
 #define DOGPATCH_FPGA_TOKEN_TIMEOUT_MS 5000
+#define DOGPATCH_NUM_FLOW_STEER_REG 8
 
 struct Exablaze {
     Exablaze();
