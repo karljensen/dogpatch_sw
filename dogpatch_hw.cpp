@@ -465,6 +465,8 @@ int Dogpatch::set_pkt_filter(uint8_t idx, dogpatch_pkt_filter_t * filter) {
 #define CTRL_EXC_OUCH (0x00 << 14)
 #define CTRL_EXC_NYSE (0x01 << 14)
 #define CTRL_EXC_CBOE (0x02 << 14)
+#define CTRL_EXC_MEMX (0x03 << 14)
+#define CTRL_EXC_MIAX (0x04 << 14)
 
 void Dogpatch::setCacheExpiry(int milliseconds) {
   reg->cache_expiry_ms = milliseconds;
@@ -529,6 +531,8 @@ void Dogpatch::bootstrap(int exchange) {
       reg->ctrl |= CTRL_EXC_CBOE;
     } else if ((exchange == brokerNode::nyse) || (exchange == brokerNode::arca) || (exchange == brokerNode::natl) || (exchange == brokerNode::amer) || (exchange == brokerNode::chx)) {
       reg->ctrl |= CTRL_EXC_NYSE;
+    } else if ((exchange == brokerNode::memx)) {
+      reg->ctrl |= CTRL_EXC_MEMX;
     } else {
       reg->ctrl |= CTRL_EXC_OUCH;  // Sets exchange to default: OUCH5
     }
