@@ -20,7 +20,7 @@ class brokerNode
     memx = 12, // Members Exchange
     miax = 13, // MIAX Pearl Equities Exchange (Miami International)
     filler1 = 14, // filler1 
-    bats = 15 // bats generic catch-all (used by byx, bzx, edga, edgx)
+    bats = 15, // bats generic catch-all (used by byx, bzx, edga, edgx)
     filler2 = 16, // filler2
     filler3 = 17, // filler3
     ubsbinary = 18, // UBS XPIN BINARY AND UBS DARK POOL SHARE THIS

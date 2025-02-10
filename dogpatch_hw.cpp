@@ -323,7 +323,7 @@ void Dogpatch::set_tcp_cksm(uint8_t session) {
 
 ssize_t Dogpatch::tcp_init(int fd, uint8_t session) {
     // Create the header
-    char tcp_hdr_buf[64];
+    char tcp_hdr_buf[64] = {0};
     ssize_t hdrlen = exasock_tcp_build_header(fd, (void*) tcp_hdr_buf, 64, 0, 0);
 
     // NULL out seq and ack
@@ -467,6 +467,7 @@ int Dogpatch::set_pkt_filter(uint8_t idx, dogpatch_pkt_filter_t * filter) {
 #define CTRL_EXC_CBOE (0x02 << 14)
 #define CTRL_EXC_MEMX (0x03 << 14)
 #define CTRL_EXC_MIAX (0x04 << 14)
+#define CTRL_EXC_UBS  (0x05 << 14)
 
 void Dogpatch::setCacheExpiry(int milliseconds) {
   reg->cache_expiry_ms = milliseconds;
@@ -533,6 +534,8 @@ void Dogpatch::bootstrap(int exchange) {
       reg->ctrl |= CTRL_EXC_NYSE;
     } else if ((exchange == brokerNode::memx)) {
       reg->ctrl |= CTRL_EXC_MEMX;
+    } else if ((exchange == brokerNode::ubsbinary)) {
+      reg->ctrl |= CTRL_EXC_UBS;
     } else {
       reg->ctrl |= CTRL_EXC_OUCH;  // Sets exchange to default: OUCH5
     }
