@@ -534,6 +534,8 @@ void Dogpatch::bootstrap(int exchange) {
       reg->ctrl |= CTRL_EXC_NYSE;
     } else if ((exchange == brokerNode::memx)) {
       reg->ctrl |= CTRL_EXC_MEMX;
+    } else if ((exchange == brokerNode::miax)) {
+      reg->ctrl |= CTRL_EXC_MIAX;
     } else if ((exchange == brokerNode::ubsbinary)) {
       reg->ctrl |= CTRL_EXC_UBS;
     } else {
