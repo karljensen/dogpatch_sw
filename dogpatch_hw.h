@@ -262,6 +262,7 @@ enum class dogpatch_mon_pkt_risk_flags {
   LISTEN_TYPE = 14, // trigger listen type filter
   CROSSED_MARKET = 15, // Market is crossed or locked
   VALID_SESSION = 16, // Valid TOE session to send on
+  SYMBOL_MAPPING = 17, // Valid symbol mapping
 };
 
 static void dump_buf(char *buf, ssize_t len) {
