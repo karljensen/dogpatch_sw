@@ -125,7 +125,7 @@ const char* RISK_CODES[18] = { "TOKEN_AGE", "OPS", "ACTION_TYPE", "SHARE_QTY", "
 
 void print_mon( dogpatch_mon_pkt_t * pkt){
     if(pkt->risk_pass) {
-        fprintf(stdout,"[MON MSG] Session: %d, Leg: %d, Sym: %d-->%.8s, Risk: %s, Side: %s, Qty: %d, Price: %d, Coi: %d\n",
+        fprintf(stdout,"[MON MSG] Session: %d, Leg: %d, Sym: %d-->%.8s, Risk: %s, Side: %s, Qty: %d, Price: %d, Coi: %u\n",
             pkt->sess_id,
             pkt->leg,
             pkt->pkt_isym,
@@ -144,7 +144,7 @@ void print_mon( dogpatch_mon_pkt_t * pkt){
             pkt->com_param_symbol,
             pkt->risk_pass ? "PASS" : "FAIL");
         for(int i = 0; i < 17; i++) {
-            if(!(pkt->risk_flags & bswap_16(1<<i))){
+            if(!(pkt->risk_flags & bswap_32(1<<i))){
                 printf("%s ",RISK_CODES[i]);
             }
         }
@@ -160,17 +160,15 @@ void print_mon( dogpatch_mon_pkt_t * pkt){
         pkt->pkt_ivol,
         pkt->pkt_iage,
         pkt->pkt_iside);
-    fprintf(stdout,"          LEG PARAM - LOAD TIME: %u, DELTA: %u, PRICE_BUY: %u, PRICE_SELL: %u, AGE: %u, SHARES: %u, SPREAD: %u, LAST_COI: %u, TOKEN_BUY: %u, TOKEN_SELL: %u, SIZE_BID: %u, SIZE_ASK: %u\n",
+    fprintf(stdout,"          LEG PARAM - LOAD TIME: %u, DELTA: %u, RISK_PRICE: %u, AGE: %u, SHARES: %u, SPREAD: %u, LAST_COI: %u, TOKEN: %u, SIZE_BID: %u, SIZE_ASK: %u\n",
         pkt->leg_risk_time,
         pkt->leg_delta,
-        pkt->leg_risk_price_buy,
-        pkt->leg_risk_price_sell,
+        pkt->leg_risk_price,
         pkt->leg_filt_age,
         pkt->leg_filt_shares,
         pkt->leg_filt_spread,
         pkt->leg_last_coi,
-        pkt->leg_risk_token_buy,
-        pkt->leg_risk_token_sell,
+        pkt->leg_risk_token,
         pkt->leg_size_bid,
         pkt->leg_size_ask);
     fprintf(stdout,"          CALC - SPREAD: %u, PRICE: %u, LAST SEQNO: %u\n",
@@ -480,8 +478,8 @@ void Dogpatch::setMaxOrdersPerSec(uint32_t orders) {
   reg->max_order_per_sec = orders;
 }
 
-void Dogpatch::setListenType(uint8_t leg, char types[12]) {
-  // Original type for listen/action filter was char[12] but the dma writes in 4 byre words
+void Dogpatch::setListenType(uint8_t table, char types[12]) {
+  // Original type for listen/action filter was char[12] but the dma writes in 4 byte words
   // which caused neighboring bytes to zero out if we tried write single byte
   // Changed to uint32_t[3] to write them word by word instead
   uint32_t types1 = *(uint32_t *)&types[0];
@@ -490,13 +488,13 @@ void Dogpatch::setListenType(uint8_t leg, char types[12]) {
   types1 = bswap_32(types1);
   types2 = bswap_32(types2);
   types3 = bswap_32(types3);
-  reg->source_types[leg].listen[0] = types1;
-  reg->source_types[leg].listen[1] = types2;
-  reg->source_types[leg].listen[2] = types3;
+  reg->source_types[table].listen[0] = types1;
+  reg->source_types[table].listen[1] = types2;
+  reg->source_types[table].listen[2] = types3;
 }
 
-void Dogpatch::setActionType(uint8_t leg, char types[12]) {
-  // Original type for listen/action filter was char[12] but the dma writes in 4 byre words
+void Dogpatch::setActionType(uint8_t table, char types[12]) {
+  // Original type for listen/action filter was char[12] but the dma writes in 4 byte words
   // which caused neighboring bytes to zero out if we tried write single byte
   // Changed to uint32_t[3] to write them word by word instead
   uint32_t types1 = *(uint32_t *)&types[0];
@@ -505,9 +503,9 @@ void Dogpatch::setActionType(uint8_t leg, char types[12]) {
   types1 = bswap_32(types1);
   types2 = bswap_32(types2);
   types3 = bswap_32(types3);
-  reg->source_types[leg].action[0] = types1;
-  reg->source_types[leg].action[1] = types2;
-  reg->source_types[leg].action[2] = types3;
+  reg->source_types[table].action[0] = types1;
+  reg->source_types[table].action[1] = types2;
+  reg->source_types[table].action[2] = types3;
 }
 
 void Dogpatch::bootstrap(int exchange) {
@@ -545,7 +543,7 @@ void Dogpatch::bootstrap(int exchange) {
       reg->ctrl |= CTRL_EXC_OUCH;  // Sets exchange to default: OUCH5
     }
     reg->ctrl |= 0x0400; // Reset Client Order ID Cache
-    reg->ctrl |= 0x0200; // Reset Radio Seno Arb
+    reg->ctrl |= 0x0200; // Reset Radio Seqno Arb
     reg->ctrl |= 0x3800; // Reset price cache
     reg->ctrl &= ~0x3800; // Clear cache reset
     reg->ctrl &= ~0x0400; // Clear reset flags

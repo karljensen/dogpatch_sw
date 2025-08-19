@@ -165,20 +165,18 @@ typedef struct dogpatch_image_info_t {
 } dogpatch_image_info_t;
 
 typedef struct dogpatch_mon_pkt_t {
-   uint8_t leg_delta; // 0
-   uint32_t leg_risk_time; //1
-   uint32_t leg_risk_price_buy; //5
-   uint32_t leg_risk_price_sell; // 9   
-   uint8_t leg_filt_shares : 3; // 13
+   uint8_t leg_delta;
+   uint32_t leg_risk_time;
+   uint32_t leg_risk_price;
+   uint8_t leg_filt_shares : 3;
    uint8_t leg_filt_age : 5;
-   uint32_t leg_filt_spread; // 14
-   uint32_t leg_last_coi; // 18
-   uint32_t leg_risk_token_buy; // 22
-   uint32_t leg_risk_token_sell; // 26
-   uint16_t leg_size_bid; // 30
-   uint16_t leg_size_ask; // 32
-   char com_param_symbol[8]; // 34
-   uint32_t com_param_seqno; // 42
+   uint32_t leg_filt_spread;
+   uint32_t leg_last_coi;
+   uint32_t leg_risk_token;
+   uint16_t leg_size_bid;
+   uint16_t leg_size_ask;
+   char com_param_symbol[8];
+   uint32_t com_param_seqno;
    uint8_t pkt_itype;
    uint8_t pkt_ipath;
    uint32_t pkt_isym;
@@ -197,23 +195,24 @@ typedef struct dogpatch_mon_pkt_t {
    uint8_t sess_id;
 } dogpatch_mon_pkt_t ;
 
-typedef struct dogpatch_leg_param_t {
-    uint16_t size_ask = 0;
-    uint16_t size_bid = 0;
-    uint32_t risk_token_sell = 0;
-    uint32_t risk_token_buy = 0;
-    uint32_t last_coi = 0;
-    uint32_t filt_spread = 0;
-    uint8_t  filt_shares : 3 = 0;
-    uint8_t  filt_age: 5 = 0;
-    uint32_t risk_price_sell = 0;
-    uint32_t risk_price_buy = 0;
+typedef struct dogpatch_leg_mode_param_t {
     uint8_t  delta : 7 = 0; // NOTE delta 0-127 with 64 equals delta of 1
     uint8_t  slot_en: 1 = 0;
-    uint8_t  source_table: 3 = 0;
-    uint8_t  reserved1: 5 = 0;
-    uint8_t reserved2 = 0;
-} dogpatch_leg_param_t;
+    uint16_t filt_spread = 0;
+    uint16_t size_ask = 0;
+    uint16_t size_bid = 0;
+    uint8_t  filt_shares : 3 = 0; 
+    uint8_t  filt_age: 5 = 0;
+    uint8_t  source_table = 0;
+} dogpatch_leg_mode_param_t; // 9 bytes
+
+typedef struct dogpatch_leg_param_t {
+    uint32_t last_coi = 0;
+    uint32_t risk_token = 0;
+    uint32_t risk_price = 0;
+    dogpatch_leg_mode_param_t mode[2];
+    uint16_t reserved = 0;
+} dogpatch_leg_param_t; // 32 bytes
 
 typedef struct dogpatch_mem_t {
     char symbol[DOGPATCH_FPGA_MAX_SYMBOLS][8];
