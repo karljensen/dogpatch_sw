@@ -160,15 +160,17 @@ void print_mon( dogpatch_mon_pkt_t * pkt){
         pkt->pkt_ivol,
         pkt->pkt_iage,
         pkt->pkt_iside);
-    fprintf(stdout,"          LEG PARAM - LOAD TIME: %u, DELTA: %u, RISK_PRICE: %u, AGE: %u, SHARES: %u, SPREAD: %u, LAST_COI: %u, TOKEN: %u, SIZE_BID: %u, SIZE_ASK: %u\n",
+    fprintf(stdout,"          LEG PARAM - LOAD TIME: %u, DELTA: %u, RISK_PRICE_BUY: %u, RISK_PRICE_SELL: %u, AGE: %u, SHARES: %u, SPREAD: %u, LAST_COI: %u, TOKEN_BUY: %u, TOKEN_SELL: %u, SIZE_BID: %u, SIZE_ASK: %u\n",
         pkt->leg_risk_time,
         pkt->leg_delta,
-        pkt->leg_risk_price,
+        pkt->leg_risk_price_buy,
+        pkt->leg_risk_price_sell,
         pkt->leg_filt_age,
         pkt->leg_filt_shares,
         pkt->leg_filt_spread,
         pkt->leg_last_coi,
-        pkt->leg_risk_token,
+        pkt->leg_risk_token_buy,
+        pkt->leg_risk_token_sell,
         pkt->leg_size_bid,
         pkt->leg_size_ask);
     fprintf(stdout,"          CALC - SPREAD: %u, PRICE: %u, LAST SEQNO: %u\n",
@@ -214,7 +216,7 @@ Dogpatch::Dogpatch(const char * device) {
         throw std::runtime_error("Unable to get exanic extended memory");
     }
 
-    mon_hdr = ((char *) mem) + 0x100000;
+    mon_hdr = ((char *) mem) + 0x1C0000;
 
     if ((reg = (dogpatch_image_info_t *) exanic_get_devkit_registers(exanic)) == NULL) {
         throw std::runtime_error("Unable to get exanic registers");
@@ -376,6 +378,8 @@ void Dogpatch::print_stats(){
     printf("  %15s: %5d %5d %5d\n","Leg",0,1,2);
     printf("  %15s: %5d %5d %5d\n","Buf Ovfl",stats->leg_buf_ovfl[0],stats->leg_buf_ovfl[1],stats->leg_buf_ovfl[2]);
     printf("  %15s: %5d %5d %5d\n","Param Reject",stats->leg_param_reject[0],stats->leg_param_reject[1],stats->leg_param_reject[2]);
+    printf("  %15s: %5d %5d %5d\n","Param Updates",stats->leg_param_update[0],stats->leg_param_update[1],stats->leg_param_update[2]);
+    printf("  %15s: %5d %5d %5d\n","Param mem_err",stats->leg_param_mem_err[0],stats->leg_param_mem_err[1],stats->leg_param_mem_err[2]);
     for(int i = 0; i < get_num_radio(); i++ ){
         printf("  Radio %d - rx: %6d, crc: %3d, ether: %3d, short: %3d, long: %d\n",i,stats->radio[i].good,stats->radio[i].crc,stats->radio[i].ether,stats->radio[i].len_short,stats->radio[i].len_long);
     }
