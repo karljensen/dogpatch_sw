@@ -419,6 +419,7 @@ void Dogpatch::set_leg_tmpl(uint8_t leg, uint8_t * tmpl, ssize_t len){
     for(int i = 0; i < len/4 + (len%4>0); i++){
         reg->order_template[leg][i] = bswap_32(((uint32_t *) tmpl)[i]);
     }
+    reg->ctrl |= (len & 0x0FF) << 23;
 }
 
 void Dogpatch::set_v9p_10g(bool enable) {
