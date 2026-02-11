@@ -5,9 +5,13 @@
 #include <cstdint>
 #include <cstring>
 #include <cstdio>
+#include <ctime>
+#include <sys/time.h>
 #include <exanic/exanic.h>
 #include <exanic/fifo_rx.h>
 #include <byteswap.h>
+#include <string>
+#include <map>
 #include "brokerNode.h" // for brokerNode::nasdaq, etc.
 
 #define DOGPATCH_FPGA_MAX_SYMBOLS 8192
@@ -246,6 +250,46 @@ typedef struct dogpatch_pillar_sess_t {
     volatile uint32_t seqno_lsb;
 } dogpatch_pillar_sess_t;
 
+typedef struct fix_seg_t {
+  char len;
+  char value[31];
+  void print() const {
+    printf("Segment len: %d, value: ", len);
+    for (int i = 0; i < len; i++) {
+      printf("%c", value[i]);
+    }
+    printf("\n");
+  }
+  void set(const std::string& str) {
+    len = static_cast<char>(str.length());
+    memset(value, 0, sizeof(value));
+    memcpy(value, str.c_str(), str.length());
+  }
+} fix_seg_t;
+
+typedef struct seg_msg_t {
+  fix_seg_t segments[32];
+} seg_msg_t;  // size 1024
+
+typedef struct seg_side_t {
+    seg_msg_t side[2];
+} seg_side_t;  // 2048
+
+typedef struct fix_template_t {
+    seg_side_t sess[32];
+} fix_template_t;  // 65536
+
+typedef struct fix_framer_mem_t {
+    // TODO: Hybride mode support
+    fix_template_t leg[3];
+} fix_framer_mem_t;
+
+typedef struct fix_reg_t {
+    volatile uint32_t seqno[DOGPATCH_FPGA_MAX_SESSIONS];
+    volatile uint32_t reserved[1024-DOGPATCH_FPGA_MAX_SESSIONS];
+    volatile uint32_t seg_meta_data[DOGPATCH_FPGA_MAX_SESSIONS * 2 * DOGPATCH_FPGA_MAX_LEGS]; // indexed by session, leg, and side
+} fix_reg_t;
+
 #pragma pack(pop)
 
 // Flag names and meaning for risk_flags field in dogpatch_mon_pkt_t
@@ -279,6 +323,11 @@ static void dump_buf(char *buf, ssize_t len) {
         fprintf(stderr, " %02x", (uint8_t)buf[i]);
     }
     fprintf(stderr, "\n");
+    for (i = 0; i < len; i++) {
+        fprintf(stdout, "%c", (char)buf[i]);
+    }
+    fprintf(stdout, "\n");
+
 }
 
 uint16_t tcp_pl_cksm(const char * msg, size_t len);
@@ -293,10 +342,12 @@ public:
     volatile dogpatch_pkt_filter_t * pkt_filter;
     volatile dogpatch_pillar_sess_t * pillar_sess;
     dogpatch_toe_t * ext_reg;
+    fix_reg_t * fix_reg;
     char * mon_hdr;
     uint32_t toe_ack[DOGPATCH_FPGA_MAX_SESSIONS];
     dogpatch_mem_t * mem;
     dogpatch_stats_t * stats;
+    fix_framer_mem_t * fix_mem;
 
     Dogpatch(const char * device);
     ~Dogpatch();
@@ -327,6 +378,12 @@ public:
     void print_pkt_filter();
     void pillar_set_sess(uint8_t session, uint32_t session_id, uint32_t stream_id, uint64_t seqno);
     int set_pkt_filter(uint8_t idx, dogpatch_pkt_filter_t *filter);
+    void set_fix_seg(uint8_t seg_idx, const std::string& seg, uint8_t sess_id, bool is_buy, int template_idx);
+    void set_segment_meta(uint8_t cksm, int len, uint8_t sess_id, bool is_buy, int template_idx);
+    void load_fix_segments(const std::map<uint8_t, std::string>& segments, uint8_t sess, uint8_t side, uint8_t leg);
+    void set_fix_seqno(uint8_t sess_id, uint32_t seqno);
+    uint32_t get_fix_seqno(uint8_t sess_id);
+    void set_fix_date();
 
 private:
     void set_tcp_hdr_seqno(uint8_t session);
@@ -341,5 +398,20 @@ ssize_t kexanic_receive_frame(exanic_rx_t *rx, char *rx_buf, size_t rx_buf_size,
 
 // On drop copy interface match returns: 'F' - FPGA originating message
 //                                       'B' - Blob injected message
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+Dogpatch* Dogpatch_new(const char* device);
+void Dogpatch_delete(Dogpatch* dp);
+void Dogpatch_set_segment_meta(Dogpatch* dp, uint8_t cksm, int len, int sess_id, bool is_buy, int template_idx);
+uint32_t Dogpatch_get_segment_meta(Dogpatch* dp, int sess_id, bool is_buy, int template_idx);
+void Dogpatch_set_fix_seqno(Dogpatch* dp, int sess_id, uint32_t seqno);
+void Dogpatch_set_fix_date(Dogpatch* dp);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -47,6 +47,22 @@ extern "C" {
       fpga = new Exablaze();
       return fpga -> write_mem(addr,data,size);
     }
+    
+    Dogpatch* Dogpatch_new(const char* device){
+      return new Dogpatch(device);
+    }
+    void Dogpatch_delete(Dogpatch* dp){
+      delete dp;
+    }
+    void Dogpatch_set_segment_meta(Dogpatch* dp, uint8_t cksm, int len, int sess_id, bool is_buy, int template_idx){
+      dp->set_segment_meta(cksm, len, sess_id, is_buy, template_idx);
+    }
+    void Dogpatch_set_fix_seqno(Dogpatch* dp, int sess_id, uint32_t seqno){
+      dp->set_fix_seqno(sess_id, seqno);
+    }
+    void Dogpatch_set_fix_date(Dogpatch* dp){
+      dp->set_fix_date();
+    }
 }
 
 Exablaze::Exablaze(){
@@ -217,12 +233,14 @@ Dogpatch::Dogpatch(const char * device) {
     }
 
     mon_hdr = ((char *) mem) + 0x1C0000;
+    fix_mem = (fix_framer_mem_t *) (((char *) mem) + 0x200000);
 
     if ((reg = (dogpatch_image_info_t *) exanic_get_devkit_registers(exanic)) == NULL) {
         throw std::runtime_error("Unable to get exanic registers");
     }
 
     stats = (dogpatch_stats_t *) (exanic_get_devkit_registers(exanic) + 998);
+    fix_reg = (fix_reg_t *) (((volatile uint32_t *) ext_reg) + 2048);
     pkt_filter = (dogpatch_pkt_filter_t *) (exanic_get_devkit_registers(exanic) + 300);
     pillar_sess = (dogpatch_pillar_sess_t *) ((uint32_t *) ext_reg + 1024);
 }
@@ -610,6 +628,117 @@ void Dogpatch::pillar_set_sess(uint8_t session, uint32_t session_id, uint32_t st
     uint32_t * seqno_ptr = (uint32_t *) &seqno;
     pillar_sess[session].seqno_msb = seqno_ptr[1];
     pillar_sess[session].seqno_lsb = seqno_ptr[0];
+}
+
+void Dogpatch::set_fix_seg(uint8_t seg_idx, const std::string& seg, uint8_t sess_id, bool is_buy, int template_idx) {
+    // Ensure value is padded to 31 bytes
+    fix_seg_t seg_data;
+    seg_data.set(seg);
+    seg_data.print();
+
+    if (is_buy) {
+        fix_mem->leg[template_idx].sess[sess_id].side[0].segments[seg_idx].set(seg);
+    } else {
+        fix_mem->leg[template_idx].sess[sess_id].side[1].segments[seg_idx].set(seg);
+    }
+    flush_mem();
+}
+
+void Dogpatch::set_segment_meta(uint8_t cksm, int len, uint8_t sess_id, bool is_buy, int template_idx) {
+  uint32_t meta = (cksm << 8) | (len);
+  printf("Setting segment meta for session %d, template %d, side %s: 0x%08x (cksm: 0x%02x, len: %d)\n", sess_id, template_idx, is_buy ? "BUY" : "SELL", meta, cksm, len);
+  fix_reg->seg_meta_data[sess_id * 2 + DOGPATCH_FPGA_MAX_SESSIONS * template_idx * 2 + (is_buy ? 0 : 1)] = meta;
+}
+
+uint32_t Dogpatch::get_fix_seqno(uint8_t sess_id) {
+    //Convert to BCD and load into register
+    uint32_t bcd_seqno = fix_reg->seqno[sess_id];
+    uint32_t ret = 0;
+    for(int i = 0; i < 8; i++) {
+        uint8_t digit = bcd_seqno & 0xF;
+        ret = ret * 10 + digit;
+        bcd_seqno >>= 4;
+    }
+    return ret;
+}
+
+void Dogpatch::set_fix_seqno(uint8_t sess_id, uint32_t seqno) {
+    //Convert to BCD and load into register
+    uint32_t bcd_seqno = 0;
+    uint32_t multiplier = 1;
+    while (seqno > 0) {
+        uint8_t digit = seqno % 10;
+        bcd_seqno += digit * multiplier;
+        multiplier *= 16;
+        seqno /= 10;
+    }
+    fix_reg->seqno[sess_id] = bcd_seqno;
+}
+
+void Dogpatch::set_fix_date() {
+    // Get current UTC time
+    time_t now = time(NULL);
+    struct tm *utc_time = gmtime(&now);
+    
+    // Get microseconds
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    
+    // Format as "YYYYmmdd-HH:MM:SS.ffffff"
+    char date_str[32];
+    snprintf(date_str, sizeof(date_str), "%04d%02d%02d-%02d:%02d:%02d.%06ld",
+             utc_time->tm_year + 1900,
+             utc_time->tm_mon + 1,
+             utc_time->tm_mday,
+             utc_time->tm_hour,
+             utc_time->tm_min,
+             utc_time->tm_sec,
+             (long)tv.tv_usec);
+    
+    // Write 6 words (24 bytes) of the date string
+    // Each word contains 4 ASCII characters in big-endian order
+    for (int i = 0; i < 6; i++) {
+        uint32_t reg = 0;
+        for (int j = 0; j < 4; j++) {
+            reg |= ((uint32_t)date_str[i*4 + j]) << ((3-j) * 8);
+        }
+        // Write to fix_reg offset: 1024 + 198 - i
+        // This corresponds to the extended register address pattern
+        ((volatile uint32_t*)fix_reg)[1024 + 198 - i] = reg;
+    }
+    
+    // Strobe the update trigger
+    ((volatile uint32_t*)fix_reg)[1024 + 192] = 1;
+    ((volatile uint32_t*)fix_reg)[1024 + 192] = 0;
+}
+
+void Dogpatch::load_fix_segments(const std::map<uint8_t, std::string>& segments,
+                                   uint8_t sess, uint8_t side, uint8_t leg) {
+    uint16_t part_len = 4;
+    uint8_t cksm = 0;
+    
+    for (const auto& [seg_idx, seg_data] : segments) {
+        if (seg_data.length() >= 32) {
+            throw std::runtime_error("Segment data length must be < 32");
+        }
+        
+        bool is_buy = (side == 1);
+        set_fix_seg(seg_idx, seg_data, sess, is_buy, leg);
+        part_len += seg_data.length();
+        
+        for (char c : seg_data) {
+            printf("Adding char '%c' (0x%02x) to checksum\n", c, static_cast<uint8_t>(c));
+            cksm += static_cast<uint8_t>(c);
+        }
+    }
+    cksm -= 0x03;  // Subtract 3 for the SOH inserted for the length field
+    cksm -= 0x31;  // Subtract '1'
+    cksm -= 0x30;  // Subtract '0'
+    cksm -= 0x3D;  // Subtract '='
+    cksm &= 0xFF;  // Mask to 8 bits
+    
+    bool is_buy = (side == 1);
+    set_segment_meta(cksm, part_len - 2, sess, is_buy, leg);
 }
 
 ssize_t kexanic_receive_frame(exanic_rx_t *rx, char *rx_buf, size_t rx_buf_size,
