@@ -414,12 +414,13 @@ void Dogpatch::set_mon_hdr(char * hdr, ssize_t len){
     reg->ctrl |= (len & 0x0FF);
 }
 
-void Dogpatch::set_leg_tmpl(uint8_t leg, uint8_t * tmpl, ssize_t len){
-    if(len > 128) { // Truncate to 128 bytes
-        len = 128;
-    }
-    for(int i = 0; i < len/4 + (len%4>0); i++){
-        reg->order_template[leg][i] = bswap_32(((uint32_t *) tmpl)[i]);
+void Dogpatch::set_leg_tmpl(uint8_t leg, uint8_t * tmpl, ssize_t len) {
+    uint8_t buffer[128];
+    memset(buffer,0,128);
+    size_t copy_len = len > 128 ? 128 : len;
+    memcpy(buffer, tmpl, copy_len);
+    for(int i = 0; i < 128/4; i++){
+        reg->order_template[leg][i] = bswap_32(((uint32_t*) buffer)[i]);
     }
     reg->ctrl |= (len & 0x0FF) << 23;
 }
