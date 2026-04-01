@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <cstdio>
+#include <string>
 #include <exanic/exanic.h>
 #include <exanic/fifo_rx.h>
 #include <byteswap.h>
@@ -300,6 +301,7 @@ public:
 
     Dogpatch(const char * device);
     ~Dogpatch();
+    std::string get_fpga_build_info();
     void print_reg();
     void flush_mem();
     /// @brief Loads Seqno from header into FPGA insertion logic

@@ -15,7 +15,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
 #include <unistd.h>
 #include <fcntl.h>
 #include <byteswap.h>
@@ -231,12 +230,32 @@ Dogpatch::~Dogpatch() {
     exanic_release_handle(exanic);
 }
 
-void Dogpatch::print_reg() {
-    printf("Magic ID: %c%c%c%c\n",reg->magic_id[3],reg->magic_id[2],reg->magic_id[1],reg->magic_id[0]);
-    printf("Build Number: %d\n",reg->build_number);
-    printf("Build Hash: %8x\n",reg->git_hash);
+std::string Dogpatch::get_fpga_build_info() {
+    char hash_buf[64];
+    snprintf(hash_buf, sizeof(hash_buf), "Build Hash: %8x\n", reg->git_hash);
+
     time_t raw_time = reg->build_timestamp;
-    printf("Build Timestamp: %s",asctime(gmtime(&raw_time)));
+    const char *timestamp = asctime(gmtime(&raw_time));
+    if (timestamp == NULL) {
+        timestamp = "Invalid build time\n";
+    }
+
+    std::ostringstream out;
+    out << "Magic ID: "
+        << reg->magic_id[3]
+        << reg->magic_id[2]
+        << reg->magic_id[1]
+        << reg->magic_id[0]
+        << "\n";
+    out << "Build Number: " << reg->build_number << "\n";
+    out << hash_buf;
+    out << "Build Timestamp: " << timestamp;
+
+    return out.str();
+}
+
+void Dogpatch::print_reg() {
+    printf("%s", get_fpga_build_info().c_str());
     printf("Num MD IF: %d\n",get_num_radio());
     printf("Num Leg: %d\n",get_num_leg());
     printf("Prefilter Ethertype: 0x%04x\n",reg->prefilter_ethtype);
