@@ -195,7 +195,14 @@ typedef struct dogpatch_mon_pkt_t {
    uint32_t spread;
    uint8_t risk_pass;
    uint32_t risk_flags;
-   uint8_t leg;
+  // As of April 2026 hybrid support
+  // Bit 2 (0 base i.e. third bit) of the 'leg' field in the monitor indicates the mode with bits 0 and 1 the leg like
+  // 7 6 5 4 3 2    1   0 |
+  // x x x x x mode {leg} |
+  // Patched to bit-field like leg : 2, mode : 1, padding : 5
+   uint8_t leg : 2;
+   uint8_t mode : 1;
+   uint8_t padding : 5;
    uint32_t coi;
    uint8_t sess_id;
 } dogpatch_mon_pkt_t ;
