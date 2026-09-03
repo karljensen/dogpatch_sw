@@ -433,7 +433,25 @@ void Dogpatch::set_mon_hdr(char * hdr, ssize_t len){
     reg->ctrl |= (len & 0x0FF);
 }
 
-void Dogpatch::set_leg_tmpl(uint8_t leg, uint8_t * tmpl, ssize_t len) {
+void Dogpatch::fetch_leg_tmpl(uint8_t leg, uint8_t * tmpl_out) {
+    for(int i = 0; i < 128/4; i++){
+        ((uint32_t*) tmpl_out)[i] = bswap_32(reg->order_template[leg][i]);
+    }
+}
+
+bool Dogpatch::check_template(uint8_t leg, uint8_t * tmpl, ssize_t len) {
+    uint8_t expected[128];
+    memset(expected,0,128);
+    size_t copy_len = len > 128 ? 128 : len;
+    memcpy(expected, tmpl, copy_len);
+
+    uint8_t actual[128];
+    fetch_leg_tmpl(leg, actual);
+
+    return memcmp(expected, actual, 128) == 0;
+}
+
+bool Dogpatch::set_leg_tmpl(uint8_t leg, uint8_t * tmpl, ssize_t len) {
     uint8_t buffer[128];
     memset(buffer,0,128);
     size_t copy_len = len > 128 ? 128 : len;
@@ -442,6 +460,8 @@ void Dogpatch::set_leg_tmpl(uint8_t leg, uint8_t * tmpl, ssize_t len) {
         reg->order_template[leg][i] = bswap_32(((uint32_t*) buffer)[i]);
     }
     reg->ctrl |= (len & 0x0FF) << 23;
+
+    return check_template(leg, tmpl, len);
 }
 
 void Dogpatch::set_v9p_10g(bool enable) {
