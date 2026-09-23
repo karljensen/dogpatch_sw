@@ -514,6 +514,7 @@ int Dogpatch::set_pkt_filter(uint8_t idx, dogpatch_pkt_filter_t * filter) {
 #define CTRL_EXC_MEMX (0x03 << 14)
 #define CTRL_EXC_MIAX (0x04 << 14)
 #define CTRL_EXC_UBS  (0x05 << 14)
+#define CTRL_EXC_BOE3 (0x06 << 14)
 
 void Dogpatch::setCacheExpiry(int milliseconds) {
   reg->cache_expiry_ms = milliseconds;
