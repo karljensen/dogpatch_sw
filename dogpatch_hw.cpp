@@ -576,7 +576,7 @@ void Dogpatch::bootstrap(int exchange) {
     reg->tcp_conn_en = 0;
     reg->ctrl &= ~CTRL_EXC_MASK; // Clear the Exchange
     if ((exchange == brokerNode::bzx) || (exchange == brokerNode::edgx) || (exchange == brokerNode::edga) || (exchange == brokerNode::byx)) {
-      reg->ctrl |= CTRL_EXC_CBOE;
+      reg->ctrl |= CTRL_EXC_BOE3;
     } else if ((exchange == brokerNode::nyse) || (exchange == brokerNode::arca) || (exchange == brokerNode::natl) || (exchange == brokerNode::amer) || (exchange == brokerNode::chx)) {
       reg->ctrl |= CTRL_EXC_NYSE;
     } else if ((exchange == brokerNode::memx)) {
